@@ -1,0 +1,288 @@
+@page "/transactions"
+@using MinhasFinancas.Shared.Models
+@using MinhasFinancas.Blazor.Services
+@inject ITransactionService TransactionService
+@inject IAuthenticationService AuthService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Transações - Minhas Finanças</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Minhas Transações</h2>
+        <div>
+            <button class="btn btn-primary me-2" @onclick="ShowAddModal">
+                <i class="bi bi-plus-circle"></i> Nova Transação
+            </button>
+            <button class="btn btn-outline-secondary" @onclick="HandleLogout">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="@(() => errorMessage = null)"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @successMessage
+            <button type="button" class="btn-close" @onclick="@(() => successMessage = null)"></button>
+        </div>
+    }
+
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Receitas</h5>
+                        <p class="card-text h3">R$ @totalReceitas.ToString("N2")</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Despesas</h5>
+                        <p class="card-text h3">R$ @totalDespesas.ToString("N2")</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title">Saldo</h5>
+                        <p class="card-text h3">R$ @saldo.ToString("N2")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                @if (!transactions.Any())
+                {
+                    <p class="text-center text-muted">Nenhuma transação cadastrada.</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Descrição</th>
+                                    <th>Tipo</th>
+                                    <th class="text-end">Valor</th>
+                                    <th class="text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var transaction in transactions.OrderByDescending(t => t.Date))
+                                {
+                                    <tr>
+                                        <td>@transaction.Date.ToString("dd/MM/yyyy")</td>
+                                        <td>@transaction.Description</td>
+                                        <td>
+                                            <span class="badge @(transaction.Type == TransactionType.Receita ? "bg-success" : "bg-danger")">
+                                                @(transaction.Type == TransactionType.Receita ? "Receita" : "Despesa")
+                                            </span>
+                                        </td>
+                                        <td class="text-end">R$ @transaction.Amount.ToString("N2")</td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTransaction(transaction.Id)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova Transação</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@newTransaction" OnValidSubmit="@HandleAddTransaction">
+                        <div class="mb-3">
+                            <label class="form-label">Descrição</label>
+                            <InputText class="form-control" @bind-Value="newTransaction.Description" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Valor</label>
+                            <InputNumber class="form-control" @bind-Value="newTransaction.Amount" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Data</label>
+                            <InputDate class="form-control" @bind-Value="newTransaction.Date" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tipo</label>
+                            <InputSelect class="form-select" @bind-Value="newTransaction.Type">
+                                <option value="@TransactionType.Receita">Receita</option>
+                                <option value="@TransactionType.Despesa">Despesa</option>
+                            </InputSelect>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary" disabled="@isLoading">
+                                @if (isLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                }
+                                Salvar
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<TransactionDto> transactions = new();
+    private TransactionDto newTransaction = new() { Date = DateTime.Today };
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isLoading;
+    private bool showModal;
+
+    private decimal totalReceitas => transactions.Where(t => t.Type == TransactionType.Receita).Sum(t => t.Amount);
+    private decimal totalDespesas => transactions.Where(t => t.Type == TransactionType.Despesa).Sum(t => t.Amount);
+    private decimal saldo => totalReceitas - totalDespesas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTransactions();
+    }
+
+    private async Task LoadTransactions()
+    {
+        isLoading = true;
+        try
+        {
+            var token = AuthService.GetToken();
+            if (string.IsNullOrEmpty(token))
+            {
+                Navigation.NavigateTo("/login");
+                return;
+            }
+
+            transactions = await TransactionService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro ao carregar transações: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ShowAddModal()
+    {
+        newTransaction = new() { Date = DateTime.Today };
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        newTransaction = new() { Date = DateTime.Today };
+    }
+
+    private async Task HandleAddTransaction()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var result = await TransactionService.CreateAsync(newTransaction);
+            if (result != null)
+            {
+                successMessage = "Transação adicionada com sucesso!";
+                CloseModal();
+                await LoadTransactions();
+            }
+            else
+            {
+                errorMessage = "Erro ao adicionar transação";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task DeleteTransaction(int id)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", "Tem certeza que deseja excluir esta transação?"))
+            return;
+
+        try
+        {
+            var success = await TransactionService.DeleteAsync(id);
+            if (success)
+            {
+                successMessage = "Transação excluída com sucesso!";
+                await LoadTransactions();
+            }
+            else
+            {
+                errorMessage = "Erro ao excluir transação";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/login");
+    }
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = default!;
+}

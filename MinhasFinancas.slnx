@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MinhasFinancas.API/MinhasFinancas.API.csproj" />
+    <Project Path="src/MinhasFinancas.Blazor/MinhasFinancas.Blazor.csproj" />
+    <Project Path="src/MinhasFinancas.Mobile/MinhasFinancas.Mobile.csproj" />
+    <Project Path="src/MinhasFinancas.Shared/MinhasFinancas.Shared.csproj" />
+  </Folder>
+</Solution>

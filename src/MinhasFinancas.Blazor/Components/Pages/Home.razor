@@ -1,0 +1,22 @@
+﻿@page "/"
+@inject NavigationManager Navigation
+
+<PageTitle>Minhas Finanças</PageTitle>
+
+<div class="container text-center mt-5">
+    <h1 class="display-4">Bem-vindo ao Minhas Finanças</h1>
+    <p class="lead">Controle suas finanças pessoais de forma simples e eficiente</p>
+    
+    <div class="mt-4">
+        <button class="btn btn-primary btn-lg" @onclick="NavigateToLogin">
+            Começar Agora
+        </button>
+    </div>
+</div>
+
+@code {
+    private void NavigateToLogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
+}
