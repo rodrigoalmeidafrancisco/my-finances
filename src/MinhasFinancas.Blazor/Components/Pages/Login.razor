@@ -1,0 +1,131 @@
+@page "/login"
+@using MinhasFinancas.Shared.Models
+@using MinhasFinancas.Blazor.Services
+@inject IAuthenticationService AuthService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Login - Minhas Finanças</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>@(isRegisterMode ? "Registrar" : "Login")</h3>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @errorMessage
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success" role="alert">
+                            @successMessage
+                        </div>
+                    }
+
+                    <EditForm Model="@loginRequest" OnValidSubmit="@HandleLogin">
+                        @if (isRegisterMode)
+                        {
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Nome</label>
+                                <InputText id="name" class="form-control" @bind-Value="registerRequest.Name" />
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <InputText id="email" type="email" class="form-control" @bind-Value="loginRequest.Email" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Senha</label>
+                            <InputText id="password" type="password" class="form-control" @bind-Value="loginRequest.Password" />
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary" disabled="@isLoading">
+                                @if (isLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                }
+                                @(isRegisterMode ? "Registrar" : "Entrar")
+                            </button>
+                        </div>
+                    </EditForm>
+
+                    <div class="mt-3 text-center">
+                        <button class="btn btn-link" @onclick="ToggleMode">
+                            @(isRegisterMode ? "Já tem conta? Faça login" : "Não tem conta? Registre-se")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginRequest loginRequest = new();
+    private RegisterRequest registerRequest = new();
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isLoading;
+    private bool isRegisterMode;
+
+    private async Task HandleLogin()
+    {
+        isLoading = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            LoginResponse result;
+
+            if (isRegisterMode)
+            {
+                registerRequest.Email = loginRequest.Email;
+                registerRequest.Password = loginRequest.Password;
+                result = await AuthService.RegisterAsync(registerRequest);
+            }
+            else
+            {
+                result = await AuthService.LoginAsync(loginRequest);
+            }
+
+            if (result.Success)
+            {
+                successMessage = result.Message;
+                await Task.Delay(500);
+                Navigation.NavigateTo("/transactions");
+            }
+            else
+            {
+                errorMessage = result.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ToggleMode()
+    {
+        isRegisterMode = !isRegisterMode;
+        errorMessage = null;
+        successMessage = null;
+        loginRequest = new();
+        registerRequest = new();
+    }
+}

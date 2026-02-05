@@ -1,0 +1,57 @@
+using Microsoft.Extensions.Logging;
+using MinhasFinancas.Mobile.Services;
+using MinhasFinancas.Mobile.ViewModels;
+
+namespace MinhasFinancas.Mobile;
+
+/// <summary>
+/// Example MauiProgram.cs for configuring the MAUI application.
+/// This file shows how to set up dependency injection for the authentication system.
+/// 
+/// To use this in a real MAUI app:
+/// 1. Create a new MAUI project
+/// 2. Add this MinhasFinancas.Mobile project as a reference
+/// 3. Copy this configuration to your MauiProgram.cs
+/// 4. Create the corresponding XAML pages that use the ViewModels
+/// </summary>
+public static class MauiProgram
+{
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            });
+
+        // Configure HttpClient with API base URL
+        var apiBaseUrl = "https://your-api-url.com"; // Update with your API URL
+        builder.Services.AddScoped(sp => new HttpClient 
+        { 
+            BaseAddress = new Uri(apiBaseUrl),
+            Timeout = TimeSpan.FromSeconds(30)
+        });
+
+        // Register Services
+        // For production, use the MAUI SecureStorage implementation
+        builder.Services.AddSingleton<ISecureStorageService, InMemorySecureStorageService>();
+        builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+        builder.Services.AddScoped<ITransactionService, TransactionService>();
+
+        // Register ViewModels
+        builder.Services.AddTransient<LoginViewModel>();
+        builder.Services.AddTransient<TransactionsViewModel>();
+
+        // Register Pages
+        // builder.Services.AddTransient<LoginPage>();
+        // builder.Services.AddTransient<TransactionsPage>();
+
+#if DEBUG
+        builder.Logging.AddDebug();
+#endif
+
+        return builder.Build();
+    }
+}
