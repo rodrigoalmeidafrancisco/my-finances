@@ -8,7 +8,6 @@
   </Folder>
   <Folder Name="/3_Infrastructure/">
     <Project Path="3_Infrastructure/Data/Data.csproj" />
-    <Project Path="3_Infrastructure/DataServicies/DataServicies.csproj" />
     <Project Path="3_Infrastructure/Dependencies/Dependencies.csproj" Id="b671f787-725d-4fb0-81d6-c47b0c2fd55d" />
   </Folder>
   <Folder Name="/4_UnitTests/">

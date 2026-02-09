@@ -1,4 +1,6 @@
 ﻿using Data.Contexts;
+using Data.Servicies;
+using Domain.Contracts.Servicies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -18,7 +20,6 @@ namespace Dependencies
             Contexts(services);
             Domain(services);
             Data(services);
-            DataServices(services);
         }
 
         private static void Contexts(IServiceCollection services)
@@ -39,12 +40,18 @@ namespace Dependencies
 
         private static void Data(IServiceCollection services)
         {
-            //services.AddScoped<IRepository..., Repository...>();
-        }
+            #region Repositories
 
-        private static void DataServices(IServiceCollection services)
-        {
-            //services.AddScoped<Ixyz, xyz>();
+            //services.AddScoped<IRepository..., Repository...>();
+
+            #endregion Repositories
+
+            #region Servicies
+
+            services.AddScoped<IServiceViaCep, ServiceViaCep>();
+
+            #endregion Servicies
+
         }
 
     }
