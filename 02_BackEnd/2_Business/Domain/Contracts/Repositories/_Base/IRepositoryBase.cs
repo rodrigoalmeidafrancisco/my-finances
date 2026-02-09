@@ -17,7 +17,7 @@ namespace Domain.Contracts.Repositories._Base
         Task<int> CountAsync(Expression<Func<T, bool>> queryWhere = null, CancellationToken cancellationToken = default);
         Task<T> GetFirstAsync(bool readOnly, Expression<Func<T, bool>> queryWhere = null, Expression<Func<T, object>>[] queryIncludes = null, CancellationToken cancellationToken = default);
         Task<T> GetSingleAsync(bool readOnly, Expression<Func<T, bool>> queryWhere = null, Expression<Func<T, object>>[] queryIncludes = null, CancellationToken cancellationToken = default);
-        Task<List<T>> GetAllAsync(bool readOnly, Expression<Func<T, bool>> queryWhere = null, Expression<Func<T, object>>[] queryIncludes = null, Expression<Func<T, object>> queryOrderBy = null, EnumTypeOrdering typeOrdering = EnumTypeOrdering.Asc, CancellationToken cancellationToken = default);
+        Task<List<T>> GetAllAsync(bool readOnly, Expression<Func<T, bool>> queryWhere = null, Expression<Func<T, object>>[] queryIncludes = null, Expression<Func<T, object>> queryOrderBy = null, EnumSortOrder sortOrder = EnumSortOrder.Ascending, CancellationToken cancellationToken = default);
         Task<Tuple<int, List<T>>> GetAllPagedAsync(bool readOnly, CommandPagination pagination, Expression<Func<T, object>> queryOrderBy, Expression<Func<T, bool>> queryWhere = null, Expression<Func<T, object>>[] queryIncludes = null, CancellationToken cancellationToken = default);
     }
 }
