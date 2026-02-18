@@ -38,12 +38,12 @@ namespace Shared.Settings
             WebRootPathImages = Path.Combine(webRootPath, "images");
         }
 
-        public static SettingAppAplication Aplication { get; private set; } = new();
-        public static SettingAppApplicationInsights ApplicationInsights { get; private set; } = new();
-        public static SettingAppConnectionStrings ConnectionStrings { get; private set; } = new();
-        public static SettingAppParameters Parameters { get; private set; } = new();
-        public static SettingsAppServices Services { get; private set; } = new();
-        public static string WebRootPath { get; private set; } = string.Empty;
-        public static string WebRootPathImages { get; private set; } = string.Empty;
+        public static SettingAppAplication Aplication { get; set; } = new();
+        public static SettingAppApplicationInsights ApplicationInsights { get; set; } = new();
+        public static SettingAppConnectionStrings ConnectionStrings { get; set; } = new();
+        public static SettingAppParameters Parameters { get; set; } = new();
+        public static SettingsAppServices Services { get; set; } = new();
+        public static string WebRootPath { get; set; } = string.Empty;
+        public static string WebRootPathImages { get; set; } = string.Empty;
     }
 }
