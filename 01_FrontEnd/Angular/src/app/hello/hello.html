@@ -3,3 +3,11 @@
 <h1>{{ title }}</h1>
 
 <button [disabled]="isDisabled" (click)="onClick()">Clique aqui</button>
+
+<h1>Count: {{ count() }}</h1>
+<h1>Double: {{ doubleCount() }}</h1>
+<!-- <h1>Double Method: {{ getDoubleCount() }}</h1> -->
+
+<button (click)="increment()">+</button>
+<button (click)="decrement()">-</button>
+<button (click)="reset()">Reset</button>
