@@ -1,49 +1,25 @@
 ﻿using Flunt.Notifications;
+using System.Collections;
 
 namespace Shared.Usefuls
 {
     public static class UsefulExtension
     {
-        extension<T>(T obj)
+        public static bool IsList<T>(this T obj)
         {
-            public bool IsList()
-            {
-                if (typeof(T).IsGenericType)
-                {
-                    if (typeof(T).GetGenericTypeDefinition() == typeof(IList<>) ||
-                        typeof(T).GetGenericTypeDefinition() == typeof(List<>) ||
-                        typeof(T).GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                    {
-                        return true;
-                    }
-                }
-
+            if (obj == null)
                 return false;
-            }
+
+            var type = typeof(T);
+            return type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
         }
 
-        extension(IReadOnlyCollection<Notification> listNotification)
+        public static List<string> SelectFluntNotification(this IReadOnlyCollection<Notification> listNotification)
         {
-            public List<string> SelectFluntNotification()
-            {
-                var listResult = new List<string>();
+            if (listNotification == null || listNotification.Count == 0)
+                return [];
 
-                if (listNotification != null && listNotification.Any())
-                {
-                    foreach (Notification notification in listNotification)
-                    {
-                        if (listResult.Any(x => x.Equals(notification.Message, StringComparison.OrdinalIgnoreCase)) == false)
-                        {
-                            listResult.Add(notification.Message);
-                        }
-                    }
-                }
-
-                return listResult.Distinct().ToList();
-            }
+            return [.. listNotification.Select(n => n.Message).Where(m => !string.IsNullOrWhiteSpace(m)).Distinct(StringComparer.OrdinalIgnoreCase)];
         }
-
-
-
     }
 }

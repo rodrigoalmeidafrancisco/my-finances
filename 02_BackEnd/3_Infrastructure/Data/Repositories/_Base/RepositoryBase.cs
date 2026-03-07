@@ -172,9 +172,9 @@ namespace Data.Repositories._Base
         /// <param name="orderDescending">Indica se a ordenação deve ser descendente</param>
         /// <param name="cancellationToken">Token de cancelamento</param>
         /// <returns>Lista de entidades</returns>
-        public async Task<List<T>> GetAllAsync(bool readOnly, Expression<Func<T, bool>> queryWhere = null, Expression<Func<T, object>>[] queryIncludes = null, Expression<Func<T, object>> queryOrderBy = null, EnumTypeOrdering typeOrdering = EnumTypeOrdering.Asc, CancellationToken cancellationToken = default)
+        public async Task<List<T>> GetAllAsync(bool readOnly, Expression<Func<T, bool>> queryWhere = null, Expression<Func<T, object>>[] queryIncludes = null, Expression<Func<T, object>> queryOrderBy = null, EnumSortOrder sortOrder = EnumSortOrder.Ascending, CancellationToken cancellationToken = default)
         {
-            var query = BaseQuery(readOnly, queryWhere, queryIncludes, queryOrderBy, typeOrdering);
+            var query = BaseQuery(readOnly, queryWhere, queryIncludes, queryOrderBy, sortOrder);
             return await query.ToListAsync(cancellationToken);
         }
 
@@ -212,7 +212,7 @@ namespace Data.Repositories._Base
             var countTask = await countQuery.CountAsync(cancellationToken);
 
             // Query principal com paginação
-            var itemsQuery = BaseQuery(readOnly, queryWhere, queryIncludes, queryOrderBy, pagination.TypeOrdering);
+            var itemsQuery = BaseQuery(readOnly, queryWhere, queryIncludes, queryOrderBy, pagination.SortOrder);
             itemsQuery = itemsQuery.Skip((pagination.PageNumber - 1) * pagination.PageSize).Take(pagination.PageSize);
 
             // Obtém os itens da página
@@ -224,7 +224,7 @@ namespace Data.Repositories._Base
 
         #region Métodos Auxiliares Privados
 
-        private IQueryable<T> BaseQuery(bool readOnly, Expression<Func<T, bool>> queryWhere = null, Expression<Func<T, object>>[] queryIncludes = null, Expression<Func<T, object>> queryOrderBy = null, EnumTypeOrdering typeOrdering = EnumTypeOrdering.Asc)
+        private IQueryable<T> BaseQuery(bool readOnly, Expression<Func<T, bool>> queryWhere = null, Expression<Func<T, object>>[] queryIncludes = null, Expression<Func<T, object>> queryOrderBy = null, EnumSortOrder sortOrder = EnumSortOrder.Ascending)
         {
             IQueryable<T> query;
 
@@ -242,7 +242,7 @@ namespace Data.Repositories._Base
 
             if (queryOrderBy != null)
             {
-                query = typeOrdering == EnumTypeOrdering.Desc ? query.OrderByDescending(queryOrderBy) : query.OrderBy(queryOrderBy);
+                query = sortOrder == EnumSortOrder.Descending ? query.OrderByDescending(queryOrderBy) : query.OrderBy(queryOrderBy);
             }
 
             return query;

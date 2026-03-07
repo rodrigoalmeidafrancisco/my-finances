@@ -20,5 +20,6 @@
         public string GIA { get; set; }
         public string DDD { get; set; }
         public string SIAFI { get; set; }
+        public bool Erro { get; set; }
     }
 }
